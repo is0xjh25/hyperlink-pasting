@@ -1,8 +1,13 @@
-import query as q
+import query
+import utilities as util
+
+loc = "Parkville"
+
 def main() -> None:
-	q1 = q.Query("Wilson Hall")
-	res = q1.find_way_id()
-	q1.read_way()
+	log_handler = util.Log(loc)
+	# loop all the building
+	q1 = query.Query(log_handler, "Wilson Hall")
+	q1.execute()
 	return None
 
 if __name__ == "__main__":
