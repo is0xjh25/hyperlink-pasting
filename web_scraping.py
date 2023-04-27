@@ -79,12 +79,12 @@ def single_campus_scrapping(campus) -> [{}]:
 	Return as json
 	"""
 	res = []
-	# for index, row in df_campus.iterrows():
-	# 	building = {}
-	# 	building['building_name'] = row['Building name']
-	# 	building['building_number'] = row['No']
-	# 	building['url'] = row['url']
-	# 	res.append(building)
+	for index, row in df_campus.iterrows():
+		building = {}
+		building['building_name'] = row['Building name']
+		building['building_number'] = row['No']
+		building['url'] = row['url']
+		res.append(building)
 
 	return res
 
@@ -94,6 +94,5 @@ def all_campus_scrapping() -> {}:
 		res[campus] = single_campus_scrapping(campus)
 	return res
 
-res = single_campus_scrapping('parkville')
-# print(res)
-# all_campus_scrapping()
+# res = single_campus_scrapping('southbank')
+# res = all_campus_scrapping()
