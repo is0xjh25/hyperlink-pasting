@@ -28,8 +28,8 @@ def single_campus_scrapping(campus) -> [{}]:
 	Building = []
 	Urls = []
 	Building_no = []
-
-	for d in soup.find_all('li',{'class' : 'cell Building'}):
+	#Update the logic to support issue on southbank campus
+	for d in soup.find_all('li',{'class' : ['cell Building', 'cell Building Food and drink']}):
 		a_tag = d.find('a')  # find the first 'a' tag in the HTML
 		url = a_tag['href'] # get the value of the 'href' attribute
 		building_name = a_tag.text.strip()  # get the text content of the tag and remove any leading/trailing white space
