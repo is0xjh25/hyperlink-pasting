@@ -45,14 +45,14 @@ class Log:
 			f = open(self.file_name, "a")
 			try:
 				for key, value in msg.items():
-					f.write("[{key}]\n".format(key=key))
+					f.write("[{key}]\n".format(key=key.upper()))
 					f.write(value + '\n\n')
 				f.write(Log.divide_line+'\n')
 			except:
 				print("[ERROR: WRITE FILE FAILED (main)]")
 		except:
 			print("[ERROR: OPEN FILE FAILED (main)]")
-		else:
+		finally:
 			f.close()
 		return None
 	

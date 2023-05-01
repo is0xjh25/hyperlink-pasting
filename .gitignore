@@ -153,3 +153,4 @@ cython_debug/
 
 *.txt
 *.xlsx
+config.ini
