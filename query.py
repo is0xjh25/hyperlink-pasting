@@ -15,12 +15,11 @@ class Query:
 	
 	nominatim_url = "https://nominatim.openstreetmap.org/"
 	open_street_url = "https://api.openstreetmap.org/"
-	map_range = "#map=9/-37.7783/145.1624"
 	
 	def __init__(self, log_handler, building_info) -> None:
 		self.log_handler = log_handler
-		self.building_name = building_info
-		self.hyperlink = "123"
+		self.building_name = building_info['building_name']
+		self.hyperlink = building_info['url']
 		self.new_changeset = ""
 		self.way_id = ""
 		self.original_way = ""
@@ -30,7 +29,8 @@ class Query:
 	
 	def find_way_id(self) -> None:
 		place = urllib.parse.quote((self.building_name + ", Melbourne, Australia").encode('utf8'))
-		url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place) + self.map_range
+		url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place)
+		# https://nominatim.openstreetmap.org/search/Building%20413%2C%20Melbourne%2C%20Australia?format=json&addressdetails=1&limit=1&polygon_svg=1
 		try:
 			res = requests.get(url)
 			res = json.loads(res.text)
@@ -51,14 +51,20 @@ class Query:
 	def create_changeset(self) -> None:
 		url = "https://api.openstreetmap.org/api/0.6/changeset/create"
 		headers = {'Content-Type': 'text/xml'}
-		xml = """<osm><changeset><tag k="created_by" v="is0xjh25"/></changeset></osm>"""
+		# xml = """<osm><changeset><tag k="created_by" v="is0xjh25"/></changeset></osm>"""
+		xml = """<osm><changeset><tag/></changeset></osm>"""
+		root = ET.fromstring(xml)
+		tag = root.find('.//tag')
+		tag.set('k', 'created_by')
+		tag.set('v', username)
+		xml = ET.tostring(root)
 		try:
 			res = requests.put(url, headers=headers, data=xml, auth=(username, password))
 			changeset_id = res.content.decode('utf-8')
 			self.new_changeset = changeset_id
-			print("57 create_changeset:")
-			print(res.status_code)
-			print(self.new_changeset)
+			# print("57 create_changeset:")
+			# print(res.status_code)
+			# print(self.new_changeset)
 		except:
 			self.log_handler.log_error("[ERROR: CHANGESET CANNOT BE CREATE]")
 		return None
@@ -68,9 +74,9 @@ class Query:
 		headers = {'Content-Type': 'text/xml'}
 		try:
 			res = requests.put(url, headers=headers, auth=(username, password))
-			print("65 close_changset:")
-			print(res.status_code)
-			print(self.new_changeset)
+			# print("65 close_changset:")
+			# print(res.status_code)
+			# print(self.new_changeset)
 		except:
 			self.log_handler.log_error("[ERROR: CHANGESET CANNOT BE CLOSED]")
 		return None
@@ -84,8 +90,8 @@ class Query:
 		headers = {'Content-Type': 'application/xml'}
 		try:
 			res = requests.post(url, data=xml, headers=headers, auth=(username, password))
-			print("77 update_way:")
-			print(res.status_code)
+			# print("77 update_way:")
+			# print(res.status_code)
 			# print(res.content)
 		except:
 			self.log_handler.log_error("[ERROR: NEW WAY CANNOT BE UPDATED]")
@@ -122,13 +128,17 @@ class Query:
 		return None
 
 	def pretty_xml (self, xml) -> str:
+		if xml == "": return "[ERROR: UNABLE TO CREATE]"
 		return ET.tostring(xml).decode()
 
 	def execute(self) -> None:
-		self.log_handler.log_header(self.building_name)
-		self.find_way_id()
-		self.read_original_way()
-		self.update_way()
+		try:
+			self.log_handler.log_header(self.building_name)
+			self.find_way_id()
+			self.read_original_way()
+			self.update_way()
+		except:
+			print("[ERROR]")
 		msg = {
 			"hyperlink": self.hyperlink,
 			"way_id": self.way_id,
