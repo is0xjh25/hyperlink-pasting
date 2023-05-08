@@ -111,8 +111,8 @@ class Query:
 		root = self.website_map(root)
 		self.updated_way = root
 		return None
-	
-	def website_map(self, root) -> None:
+
+	def website_map(self, root, k, v) -> None:
 		new_ele = ET.Element('tag', k='website:map', v=self.hyperlink)
 		old_ele = root.find(".//tag[@k='website:map']")
 		if old_ele is not None: root[0].remove(old_ele)

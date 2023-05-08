@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 
 class Log:
 	divide_line = "------------------------------------------------------------\n"
@@ -68,3 +69,15 @@ class Log:
 		else:
 			f.close()
 		return None
+
+def read_exec(url) -> {}:
+	res = []
+	data = pd.read_excel(url)
+	print(data)
+	for index, row in data.iterrows():
+		building = {}
+		building['building_name'] = row['Building name']
+		building['building_number'] = row['No']
+		building['url'] = row['url']
+		res.append(building)
+	return res
