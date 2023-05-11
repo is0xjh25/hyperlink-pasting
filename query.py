@@ -28,13 +28,26 @@ class Query:
 		return
 	
 	def find_way_id(self) -> None:
-		place = urllib.parse.quote((self.building_name + ", Melbourne, Australia").encode('utf8'))
-		url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place)
+		print("___________________________________________")
+		print(self.building_name)
+		place_one = urllib.parse.quote((self.building_name + ", Melbourne, Australia").encode('utf8'))
+		place_two = urllib.parse.quote((self.building_name).encode('utf8'))
 		# https://nominatim.openstreetmap.org/search/Building%20413%2C%20Melbourne%2C%20Australia?format=json&addressdetails=1&limit=1&polygon_svg=1
 		try:
+			url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place_one)
 			res = requests.get(url)
 			res = json.loads(res.text)
-			self.way_id = str(res[0]['osm_id'])
+			try:
+				print(url)
+				self.way_id = str(res[0]['osm_id'])
+			except:
+				# when first searching fails
+				print(url)
+				print("!!!!!")
+				url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place_two)
+				res = requests.get(url)
+				res = json.loads(res.text)
+				self.way_id = str(res[0]['osm_id'])
 		except:
 			self.log_handler.log_error("[ERROR: WAY_ID CANNOT BE FOUND]")
 		return None
@@ -112,7 +125,7 @@ class Query:
 		self.updated_way = root
 		return None
 
-	def website_map(self, root, k, v) -> None:
+	def website_map(self, root) -> None:
 		new_ele = ET.Element('tag', k='website:map', v=self.hyperlink)
 		old_ele = root.find(".//tag[@k='website:map']")
 		if old_ele is not None: root[0].remove(old_ele)
@@ -132,13 +145,17 @@ class Query:
 		return ET.tostring(xml).decode()
 
 	def execute(self) -> None:
+		# self.log_handler.log_header(self.building_name)
+		# self.find_way_id()
+		# self.read_original_way()
+		# self.update_way()
 		try:
 			self.log_handler.log_header(self.building_name)
 			self.find_way_id()
 			self.read_original_way()
 			self.update_way()
 		except:
-			print("[ERROR]")
+			print("[ERROR]: {}".format(self.building_name))
 		msg = {
 			"hyperlink": self.hyperlink,
 			"way_id": self.way_id,
@@ -147,3 +164,5 @@ class Query:
 		}
 		self.log_handler.log_main(msg)
 		return None
+
+# https://nominatim.openstreetmap.org/search/STURT%20ST%20SERVICE%20CENTRE%20Melbourne%2C%20Australia?format=json&addressdetails=1&limit=1&polygon_svg=1

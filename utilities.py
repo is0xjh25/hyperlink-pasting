@@ -9,7 +9,7 @@ class Log:
 
 	def init_log_file(self) -> str:
 		now = datetime.datetime.now().strftime("%Y-%m-%d %H%M")
-		file_name = "{loc} - {time}".format(loc=self.loc, time=now)
+		file_name = "{loc}-{time}".format(loc=self.loc, time=now)
 		try:
 			f = open(file_name + ".txt", "w")
 			try:
