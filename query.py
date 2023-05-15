@@ -18,8 +18,7 @@ class Query:
 	
 	def __init__(self, log_handler, building_info) -> None:
 		self.log_handler = log_handler
-		self.building_name = building_info['building_name']
-		self.hyperlink = building_info['url']
+		self.building_info = building_info
 		self.new_changeset = ""
 		self.way_id = ""
 		self.original_way = ""
@@ -29,10 +28,10 @@ class Query:
 	
 	def find_way_id(self) -> None:
 		print("___________________________________________")
-		print(self.building_name)
-		place_one = urllib.parse.quote((self.building_name + ", Melbourne, Australia").encode('utf8'))
-		place_two = urllib.parse.quote((self.building_name).encode('utf8'))
-		# https://nominatim.openstreetmap.org/search/Building%20413%2C%20Melbourne%2C%20Australia?format=json&addressdetails=1&limit=1&polygon_svg=1
+		print(self.building_info['building_name'])
+		print(self.building_info)
+		place_one = urllib.parse.quote((self.building_info['building_name'].replace('/', '') + ", Melbourne, Australia").encode('utf8'))
+		place_two = urllib.parse.quote((self.building_info['building_name'].replace('/', '')).encode('utf8'))
 		try:
 			url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place_one)
 			res = requests.get(url)
@@ -42,9 +41,9 @@ class Query:
 				self.way_id = str(res[0]['osm_id'])
 			except:
 				# when first searching fails
-				print(url)
-				print("!!!!!")
+				print("[SECOND ATTEMPT]")
 				url = Query.nominatim_url + "search/{}?format=json&addressdetails=1&limit=1&polygon_svg=1".format(place_two)
+				print(url)
 				res = requests.get(url)
 				res = json.loads(res.text)
 				self.way_id = str(res[0]['osm_id'])
@@ -75,9 +74,6 @@ class Query:
 			res = requests.put(url, headers=headers, data=xml, auth=(username, password))
 			changeset_id = res.content.decode('utf-8')
 			self.new_changeset = changeset_id
-			# print("57 create_changeset:")
-			# print(res.status_code)
-			# print(self.new_changeset)
 		except:
 			self.log_handler.log_error("[ERROR: CHANGESET CANNOT BE CREATE]")
 		return None
@@ -87,9 +83,6 @@ class Query:
 		headers = {'Content-Type': 'text/xml'}
 		try:
 			res = requests.put(url, headers=headers, auth=(username, password))
-			# print("65 close_changset:")
-			# print(res.status_code)
-			# print(self.new_changeset)
 		except:
 			self.log_handler.log_error("[ERROR: CHANGESET CANNOT BE CLOSED]")
 		return None
@@ -103,9 +96,6 @@ class Query:
 		headers = {'Content-Type': 'application/xml'}
 		try:
 			res = requests.post(url, data=xml, headers=headers, auth=(username, password))
-			# print("77 update_way:")
-			# print(res.status_code)
-			# print(res.content)
 		except:
 			self.log_handler.log_error("[ERROR: NEW WAY CANNOT BE UPDATED]")
 		finally:
@@ -120,17 +110,15 @@ class Query:
 		way.set('user', username)
 		way.set('timestamp', str(datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")))
 		way.attrib.pop('uid', None)
-		# change website:map
-		root = self.website_map(root)
+		# change website:map, etc...
+		for key in self.building_info:
+			if (key == "building_name" or key == "building_no"):continue
+			new_ele = ET.Element('tag', k=key, v=str(self.building_info[key]))
+			old_ele = root.find(".//tag[@k='{}']".format(key))
+			if old_ele is not None: root[0].remove(old_ele)
+			root[0].append(new_ele)
 		self.updated_way = root
 		return None
-
-	def website_map(self, root) -> None:
-		new_ele = ET.Element('tag', k='website:map', v=self.hyperlink)
-		old_ele = root.find(".//tag[@k='website:map']")
-		if old_ele is not None: root[0].remove(old_ele)
-		root[0].append(new_ele)
-		return root
 	
 	def form_update_xml(self) -> None:
 		old_root = self.updated_way[0]
@@ -145,10 +133,6 @@ class Query:
 		return ET.tostring(xml).decode()
 
 	def execute(self) -> None:
-		# self.log_handler.log_header(self.building_name)
-		# self.find_way_id()
-		# self.read_original_way()
-		# self.update_way()
 		try:
 			self.log_handler.log_header(self.building_name)
 			self.find_way_id()
@@ -157,12 +141,9 @@ class Query:
 		except:
 			print("[ERROR]: {}".format(self.building_name))
 		msg = {
-			"hyperlink": self.hyperlink,
 			"way_id": self.way_id,
 			"original_way": self.original_way,
 			"updated_way": self.pretty_xml(self.formal_updated_way)
 		}
 		self.log_handler.log_main(msg)
 		return None
-
-# https://nominatim.openstreetmap.org/search/STURT%20ST%20SERVICE%20CENTRE%20Melbourne%2C%20Australia?format=json&addressdetails=1&limit=1&polygon_svg=1

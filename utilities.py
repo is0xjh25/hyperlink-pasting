@@ -73,11 +73,11 @@ class Log:
 def read_exec(url) -> {}:
 	res = []
 	data = pd.read_excel(url)
-	print(data)
+	columns = data.columns
+	print(columns)
 	for index, row in data.iterrows():
 		building = {}
-		building['building_name'] = row['Building name']
-		building['building_number'] = row['No']
-		building['url'] = row['url']
+		for c in columns:
+			building[c] = row[c]	
 		res.append(building)
 	return res
