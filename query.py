@@ -8,8 +8,8 @@ from lxml import etree
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-username = config['JIM']['username']
-password = config['JIM']['password']
+username = config['User']['username']
+password = config['User']['password']
 
 class Query:
 	
