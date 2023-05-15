@@ -1,16 +1,19 @@
 import query
+import sys
 import utilities as util
 # import web_scraping as ws
 
-campus = "werribee"
+campus = sys.argv[1]
+campus_list = ['burnley', 'creswick', 'dookie', 'parkville', 'shepparton', 'southbank', 'werribee']
 url = "./Mapping/unimelb_{}_url.xlsx".format(campus)
-def main() -> None:
 
-	log_handler = util.Log(campus)
-	# {'building_name': 'Werribee Biohazard Depot', 'building_number': '415', 'url': 'https://use.mazemap.com/?campusid=217&sharepoitype=identifier&sharepoi=415'}, 
-	# buildings = [{'building_name': 'Werribee Biohazard Depot', 'building_number': '415', 'url': 'https://use.mazemap.com/?campusid=217&sharepoitype=identifier&sharepoi=415'}, {'building_name': 'Building 411', 'building_number': '411', 'url': 'https://use.mazemap.com/?campusid=217&sharepoitype=identifier&sharepoi=411'}]
+def main() -> None:
+	if campus.lower() not in campus_list:
+		print("[ERROR]: {} is not a Unimelb campus.".format(campus))
+		return None
+	log_handler = util.Log(campus.lower())
 	buildings = util.read_exec(url)
-	# # loop all the building in werribee
+	# # loop all the building in campus
 	for building_info in buildings:
 		building = query.Query(log_handler, building_info)
 		building.execute()

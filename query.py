@@ -134,12 +134,12 @@ class Query:
 
 	def execute(self) -> None:
 		try:
-			self.log_handler.log_header(self.building_name)
+			self.log_handler.log_header(self.building_info['building_name'])
 			self.find_way_id()
 			self.read_original_way()
 			self.update_way()
 		except:
-			print("[ERROR]: {}".format(self.building_name))
+			print("[ERROR]: {}".format(self.building_info['building_name']))
 		msg = {
 			"way_id": self.way_id,
 			"original_way": self.original_way,
