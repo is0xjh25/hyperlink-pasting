@@ -9,7 +9,7 @@
 * [Developed By](#developed-by)
 
 ## About the Application
-Our team is encouraging the students and vistors to use Maze Map since it provides more details about buildings and classrooms, and most importantly, it has the wayfinding naviagation inside the school. Attaching Maza Map hyperlink on different map platforms could let the users know there is an altenative map while they are visting the campus. This product is going to update the building information based on the excel data to OpenStreet Map automatically. It should also have error handling for unexpected error. This program would be the first version, the functionality of editing information on Google Map can be added in the future.
+Our team is encouraging the students and visitors to use Maze Map since it provides more details about buildings and classrooms, and most importantly, it has the wayfinding navigation inside the school. Attaching Maze Map hyperlink on different map platforms could let the users know there is an alternative map while they are visiting the campus. This product is going to update the building information based on the excel data to OpenStreet Map automatically. It should also have error handling for unexpected error. This program would be the first version, the functionality of editing information on Google Map can be added in the future.
 
 ## Prerequisite OpenStreet Configuration
 Before executing a program, the config.ini must be edited to include your username and password OpenStreet Map account in order to grant the change node request process.
