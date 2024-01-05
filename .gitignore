@@ -155,3 +155,4 @@ cython_debug/
 *.xlsx
 config.ini
 Mapping/
+.DS_Store
